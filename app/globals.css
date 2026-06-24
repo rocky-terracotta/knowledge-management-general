@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: Aptos, "Aptos Display", "Segoe UI", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --background: #fbfaf8;
+  --foreground: #25181b;
+  --muted-foreground: #6f6663;
+  --border: #e7e1dc;
+  --accent: #f7e5eb;
+  --primary: #4a0618;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  letter-spacing: 0;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.digest-shell {
+  background: var(--background);
+}
+
+.client-alert-editor {
+  font-family: var(--font-sans);
+  color: #333333;
+}
+
+.client-alert-editor h1 {
+  margin: 0 0 16px;
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 700;
+  color: #470b1a;
+}
+
+.client-alert-editor h2 {
+  margin: 26px 0 10px;
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 700;
+  color: #470b1a;
+}
+
+.client-alert-editor h3 {
+  margin: 20px 0 8px;
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 700;
+  color: #470b1a;
+}
+
+.client-alert-editor p,
+.client-alert-editor li {
+  margin: 16px 0;
+  font-size: 14px;
+  line-height: 22px;
+  color: #333333;
+}
+
+.client-alert-editor ul,
+.client-alert-editor ol {
+  margin: 12px 0 18px 20px;
+  padding: 0;
+}
+
+.client-alert-editor a {
+  color: #470b1a;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
