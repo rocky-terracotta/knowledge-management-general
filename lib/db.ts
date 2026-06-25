@@ -1,4 +1,4 @@
-import { mkdirSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import type { DatabaseSync as DatabaseSyncType } from "node:sqlite";
 import type { ArticleDraft, FirmPerson, SfcNewsContent, SfcNewsListItem, StoredNews } from "@/lib/types";
@@ -12,9 +12,7 @@ let db: DatabaseSyncType | null = null;
 
 export function getDb(): DatabaseSyncType {
   if (db) return db;
-  const dbPath = process.env.DATABASE_PATH
-    ? resolve(/* turbopackIgnore: true */ process.env.DATABASE_PATH)
-    : join(process.cwd(), "data", "knowledge-alerts.sqlite");
+  const dbPath = resolveDatabasePath();
   mkdirSync(dirname(dbPath), { recursive: true });
   db = new DatabaseSync(dbPath);
   db.exec(`
@@ -64,6 +62,23 @@ export function getDb(): DatabaseSyncType {
   ensureColumn("news", "source", "TEXT NOT NULL DEFAULT 'sfc'");
   ensureColumn("news", "keywords", "TEXT NOT NULL DEFAULT '[]'");
   return db;
+}
+
+function resolveDatabasePath(): string {
+  if (process.env.DATABASE_PATH) {
+    return resolve(/* turbopackIgnore: true */ process.env.DATABASE_PATH);
+  }
+
+  const seedPath = join(process.cwd(), "data", "knowledge-alerts.sqlite");
+  if (!process.env.VERCEL) {
+    return seedPath;
+  }
+
+  const runtimePath = "/tmp/knowledge-alerts.sqlite";
+  if (!existsSync(runtimePath) && existsSync(seedPath)) {
+    copyFileSync(seedPath, runtimePath);
+  }
+  return runtimePath;
 }
 
 function ensureColumn(table: string, column: string, definition: string): void {
