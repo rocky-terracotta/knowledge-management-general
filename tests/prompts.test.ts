@@ -15,7 +15,7 @@ describe("generation prompts", () => {
       modificationTime: null,
       targetCeList: [{ ceName: "Example Name", lang: "EN", masked: false }],
       sourceUrl: "https://apps.sfc.hk/doc?refNo=26PR90",
-      summary: "Summary",
+      summary: "Summary only text that should not be used as source article body.",
       keywords: ["SFO enforcement", "Shareholder remedies", "Director disqualification", "SFC enforcement", "Regulatory action"],
       contentHtml: "<p>The SFC commenced proceedings under section 214.</p>",
       seen: false,
@@ -41,6 +41,8 @@ describe("generation prompts", () => {
     });
 
     expect(prompt).toContain("Use only the SFC source text");
+    expect(prompt).toContain("The SFC commenced proceedings under section 214.");
+    expect(prompt).not.toContain("Summary only text that should not be used as source article body.");
     expect(prompt).toContain("Initialise individuals");
     expect(prompt).toContain("Adrian Chan");
     expect(prompt).toContain("https://terracotta.dev/people/adrian-chan");
@@ -59,7 +61,7 @@ describe("generation prompts", () => {
       modificationTime: null,
       targetCeList: [{ ceName: "Example Name", lang: "EN", masked: false }],
       sourceUrl: "https://apps.sfc.hk/doc?refNo=26PR90",
-      summary: "Summary",
+      summary: "Summary only text that should not be used as source article body.",
       keywords: ["SFO enforcement", "Shareholder remedies", "Director disqualification", "SFC enforcement", "Regulatory action"],
       contentHtml: "<p>The SFC commenced proceedings under section 214.</p>",
       seen: false,
@@ -102,6 +104,8 @@ describe("generation prompts", () => {
     expect(prompt).toContain("Do not add separate \"SFC announcement\"");
     expect(prompt).not.toContain("[SFC announcement]({{sourceUrl}})");
     expect(prompt).toContain("Explain implications for directors.");
+    expect(prompt).toContain("The SFC commenced proceedings under section 214.");
+    expect(prompt).not.toContain("Summary only text that should not be used as source article body.");
     expect(prompt).toContain("https://apps.sfc.hk/doc?refNo=26PR90");
     expect(prompt).toContain("Adrian Chan");
     expect(prompt).toContain("https://terracotta.dev/people/adrian-chan");
