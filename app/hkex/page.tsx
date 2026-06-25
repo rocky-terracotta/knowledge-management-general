@@ -1,6 +1,6 @@
 import { AlertsWorkspace } from "@/components/AlertsWorkspace";
 import { listPeople, listStoredNews } from "@/lib/db";
-import { syncLatestHkexNews } from "@/lib/sync";
+import { syncLatestHkexNews, syncPeople } from "@/lib/sync";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -17,6 +17,7 @@ const hkexConfig = {
 
 export default async function HkexTracker() {
   let syncError: string | null = null;
+  await syncPeople();
   const storedNews = listStoredNews(20, "hkex");
   if (storedNews.length < 20 || storedNews.some((item) => !item.summary || !item.contentHtml)) {
     try {
