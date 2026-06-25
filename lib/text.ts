@@ -38,10 +38,10 @@ export function limitWords(text: string, minWords: number, maxWords: number): st
 export function formatDate(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("en-HK", {
-    dateStyle: "medium",
-    timeZone: "Asia/Hong_Kong",
-  }).format(date);
+  const hongKongDate = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+  const day = String(hongKongDate.getUTCDate()).padStart(2, "0");
+  const month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][hongKongDate.getUTCMonth()];
+  return `${day} ${month} ${hongKongDate.getUTCFullYear()}`;
 }
 
 export function sourceUrl(refNo: string): string {

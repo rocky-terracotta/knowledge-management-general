@@ -74,7 +74,8 @@ function resolveDatabasePath(): string {
     return seedPath;
   }
 
-  const runtimePath = "/tmp/knowledge-alerts.sqlite";
+  const deployId = (process.env.VERCEL_GIT_COMMIT_SHA || process.env.VERCEL_DEPLOYMENT_ID || "runtime").replace(/[^a-zA-Z0-9_-]/g, "");
+  const runtimePath = `/tmp/knowledge-alerts-${deployId}.sqlite`;
   if (!existsSync(runtimePath) && existsSync(seedPath)) {
     copyFileSync(seedPath, runtimePath);
   }

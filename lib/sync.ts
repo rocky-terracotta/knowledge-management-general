@@ -67,6 +67,9 @@ export async function syncLatestHkexNews(options: { pageSize?: number; summarize
 export async function ensureNewsContent(refNo: string): Promise<void> {
   const stored = getStoredNews(refNo);
   if (stored?.contentHtml) return;
+  if (process.env.ENABLE_LIVE_NEWS_SYNC !== "true") {
+    throw new Error(`Stored full source article is unavailable for ${refNo}.`);
+  }
   if (stored?.source === "hkex") {
     const content = await fetchHkexAnnouncementContentByUrl(stored.sourceUrl);
     const metadata = stored.summary
