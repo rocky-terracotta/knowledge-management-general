@@ -80,12 +80,12 @@ describe("generation prompts", () => {
         imageUrl: null,
       },
       {
-        id: 2,
-        name: "Jason Wong",
-        title: "Associate",
-        profileUrl: "https://terracotta.dev/people/jason-wong",
-        practiceAreas: ["Regulatory Compliance"],
-        intro: "Jason advises on compliance.",
+        id: 6,
+        name: "Leona Zhang",
+        title: "Trainee Solicitor",
+        profileUrl: "https://www.linkedin.com/in/leona-zhang/",
+        practiceAreas: ["Knowledge management", "Legal research"],
+        intro: "Leona assists with legal research.",
         imageUrl: null,
       },
     ];
@@ -109,8 +109,8 @@ describe("generation prompts", () => {
     expect(prompt).toContain("https://apps.sfc.hk/doc?refNo=26PR90");
     expect(prompt).toContain("Adrian Chan");
     expect(prompt).toContain("https://terracotta.dev/people/adrian-chan");
-    expect(prompt).toContain("Jason Wong");
-    expect(prompt).toContain("https://terracotta.dev/people/jason-wong");
+    expect(prompt).toContain("Leona Zhang");
+    expect(prompt).toContain("https://www.linkedin.com/in/leona-zhang/");
   });
 
   it("keeps fallback summaries between 50 and 100 words without ellipses", () => {

@@ -53,22 +53,22 @@ export const firmPeople: FirmPerson[] = [
   },
   {
     id: 6,
-    name: "Natalie Cheung",
-    profileUrl: "https://terracotta.dev/people/natalie-cheung",
+    name: "Leona Zhang",
+    profileUrl: "https://www.linkedin.com/in/leona-zhang/",
     title: "Trainee Solicitor",
     practiceAreas: ["Corporate", "Knowledge management", "Legal research"],
     intro:
-      "Natalie assists with legal research, document review, and knowledge management workflows for corporate and regulatory matters.",
+      "Leona assists with legal research, document review, and knowledge management workflows for corporate and regulatory matters.",
     imageUrl: null,
   },
   {
     id: 7,
-    name: "Brian Yip",
-    profileUrl: "https://terracotta.dev/people/brian-yip",
+    name: "Rocky Li",
+    profileUrl: "https://www.linkedin.com/in/itsrocky/",
     title: "Trainee Solicitor",
     practiceAreas: ["Disputes", "Regulatory monitoring", "Drafting"],
     intro:
-      "Brian supports dispute resolution and regulatory monitoring work, including source review, timeline building, and first-draft client updates.",
+      "Rocky supports dispute resolution and regulatory monitoring work, including source review, timeline building, and first-draft client updates.",
     imageUrl: null,
   },
 ];
