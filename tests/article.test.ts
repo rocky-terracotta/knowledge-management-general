@@ -101,26 +101,17 @@ describe("article generation contacts", () => {
     expect(draft.markdown).toContain("Profile URL: https://www.linkedin.com/in/itsrocky/");
   });
 
-  it("uses the required article structure when falling back after LLM failure", async () => {
+  it("propagates LLM failures instead of generating an arbitrary fallback article", async () => {
     const { generateText } = await import("@/lib/openai");
     vi.mocked(generateText).mockRejectedValueOnce(new Error("LLM unavailable"));
     const { generateConsolidatedArticleDraft } = await import("@/lib/article");
 
-    const draft = await generateConsolidatedArticleDraft({
+    await expect(generateConsolidatedArticleDraft({
       newsRefNos: [news.newsRefNo],
       personIds: [6],
       anonymize: "",
       requirements: "Focus on board oversight.",
       promptDirections: {},
-    });
-
-    expect(draft.markdown).toContain("# SFC seeks share buy-out order");
-    expect(draft.markdown).toContain("## [SFC seeks share buy-out order](https://apps.sfc.hk/doc?refNo=26PR90)");
-    expect(draft.markdown).toContain("## What this suggests");
-    expect(draft.markdown).toContain("## Takeaways");
-    expect(draft.markdown).toContain("## Contact");
-    expect(draft.markdown).toContain("[Leona Zhang](https://www.linkedin.com/in/leona-zhang/)");
-    expect(draft.markdown).not.toContain("This draft is generated from the stored full source article text because live AI generation was unavailable.");
-    expect(draft.markdown).not.toContain("## Drafting Notes");
+    })).rejects.toThrow("LLM unavailable");
   });
 });
