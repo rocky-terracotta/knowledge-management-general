@@ -5,6 +5,12 @@ import { ensureNewsContent } from "@/lib/sync";
 import { stripHtml, truncateWords } from "@/lib/text";
 import type { ArticleDraft, FirmPerson, GenerateArticleInput, StoredNews } from "@/lib/types";
 
+const DEFAULT_CONTACT_PROFILE_URL = "https://casebyte.ai?utm_source=LZ&utm_medium=linkedin&utm_campaign=kms";
+const TRAINEE_PROFILE_URLS: Record<string, string> = {
+  "leona zhang": "https://www.linkedin.com/in/leona-zhang/",
+  "rocky li": "https://www.linkedin.com/in/itsrocky/",
+};
+
 export async function generateArticleDraft(input: GenerateArticleInput): Promise<ArticleDraft> {
   await ensureNewsContent(input.newsRefNo);
   const news = getStoredNews(input.newsRefNo);
@@ -13,7 +19,10 @@ export async function generateArticleDraft(input: GenerateArticleInput): Promise
   }
 
   const personIds = input.personIds?.length ? input.personIds : input.personId ? [input.personId] : [];
-  const people = personIds.map((id) => getPerson(id)).filter((person): person is NonNullable<ReturnType<typeof getPerson>> => Boolean(person));
+  const people = personIds
+    .map((id) => getPerson(id))
+    .filter((person): person is NonNullable<ReturnType<typeof getPerson>> => Boolean(person))
+    .map(normalizeArticleContact);
   const person = people[0] ?? null;
   const prompt = buildArticlePrompt({
     news,
@@ -58,7 +67,8 @@ export async function generateConsolidatedArticleDraft(input: {
 
   const people = Array.from(new Set(input.personIds))
     .map((id) => getPerson(id))
-    .filter((person): person is NonNullable<ReturnType<typeof getPerson>> => Boolean(person));
+    .filter((person): person is NonNullable<ReturnType<typeof getPerson>> => Boolean(person))
+    .map(normalizeArticleContact);
   const prompt = buildConsolidatedArticlePrompt({
     newsItems,
     people,
@@ -138,4 +148,12 @@ function fallbackArticleMarkdown(newsItems: StoredNews[], people: FirmPerson[], 
 
 function displayMarkdownTitle(title: string): string {
   return title.replace(/\s+/g, " ").trim();
+}
+
+function normalizeArticleContact(person: FirmPerson): FirmPerson {
+  const traineeUrl = TRAINEE_PROFILE_URLS[person.name.trim().toLowerCase()];
+  return {
+    ...person,
+    profileUrl: traineeUrl ?? DEFAULT_CONTACT_PROFILE_URL,
+  };
 }
