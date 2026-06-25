@@ -2,7 +2,7 @@ import { getPerson, getStoredNews, saveArticleDraft } from "@/lib/db";
 import { generateText } from "@/lib/openai";
 import { buildArticlePrompt, buildConsolidatedArticlePrompt } from "@/lib/prompts";
 import { ensureNewsContent } from "@/lib/sync";
-import { stripHtml, truncateWords } from "@/lib/text";
+import { limitWords, stripHtml } from "@/lib/text";
 import type { ArticleDraft, FirmPerson, GenerateArticleInput, StoredNews } from "@/lib/types";
 
 const DEFAULT_CONTACT_PROFILE_URL = "https://casebyte.ai?utm_source=LZ&utm_medium=linkedin&utm_campaign=kms";
@@ -103,11 +103,16 @@ async function generateWithFallback(prompt: string, fallback: () => string, maxO
 }
 
 function fallbackArticleMarkdown(newsItems: StoredNews[], people: FirmPerson[], requirements: string): string {
-  const title = newsItems.length === 1 ? displayMarkdownTitle(newsItems[0].title) : "Regulatory Enforcement Update";
-  const keywords = Array.from(new Set(newsItems.flatMap((item) => item.keywords))).slice(0, 5);
+  const title = newsItems.length === 1 ? displayMarkdownTitle(newsItems[0].title) : "Regulatory enforcement themes for boards and compliance teams";
+  const standfirst =
+    newsItems.length === 1
+      ? "This update summarises the enforcement development and highlights practical governance, controls, and response points for market participants."
+      : "These updates point to continuing regulatory attention on governance, controls, disclosure discipline, and timely remediation by market participants.";
+  const background =
+    "The developments should be read as source-limited regulatory news rather than findings beyond the published material. Boards, senior management, responsible officers, and compliance teams should consider whether their control framework, escalation process, and records would support a clear response if similar issues arose.";
   const sections = newsItems
     .map((item) => {
-      const sourceText = truncateWords(stripHtml(item.contentHtml ?? ""), 650);
+      const sourceText = articleSectionSummary(item);
       return [
         `## [${displayMarkdownTitle(item.title)}](${item.sourceUrl})`,
         "",
@@ -116,38 +121,55 @@ function fallbackArticleMarkdown(newsItems: StoredNews[], people: FirmPerson[], 
     })
     .join("\n\n");
   const team = people.length
-    ? people.map((person) => `- [${person.name}](${person.profileUrl}), ${person.title}`).join("\n")
-    : "- No contact selected.";
+    ? people.map((person) => `[${person.name}](${person.profileUrl})`).join(", ")
+    : "the knowledge team";
 
   return [
     `# ${title}`,
     "",
-    "This draft is generated from the stored full source article text because live AI generation was unavailable.",
+    standfirst,
     "",
-    `Keywords: ${keywords.length ? keywords.join("; ") : "Regulatory update"}`,
-    "",
-    "## Background",
+    background,
     "",
     sections,
     "",
-    "## Key Takeaways",
+    "## What this suggests",
     "",
-    "- Review the source facts and procedural posture before circulation.",
-    "- Tailor the legal analysis to the intended client audience and transaction context.",
-    requirements ? `- User requirements noted: ${requirements}` : "- Add any client-specific requirements before sending.",
+    "The update reinforces the need to treat regulatory news as an operational signal, not only a legal development. Firms should connect the facts reported in the source materials with governance routines, board reporting, supervision, record keeping, and remediation planning. Where multiple updates are selected, the common theme is that regulators continue to expect disciplined controls and a documented response to emerging issues.",
     "",
-    "## Team",
+    "## Takeaways",
     "",
-    team,
+    "1. ***Review governance records early.*** Boards and senior management should be able to show how issues were escalated, considered, and followed through.",
+    "2. ***Test controls against real scenarios.*** Compliance procedures should be checked against the types of failures, allegations, or sanctions described in the source update.",
+    requirements
+      ? `3. ***Reflect the requested angle.*** The draft should be reviewed against this user requirement before circulation: ${requirements}`
+      : "3. ***Plan remediation before pressure builds.*** A clear remediation plan, with owners and evidence, is often as important as the initial legal analysis.",
     "",
-    "## Drafting Notes",
+    "## Contact",
     "",
-    "This fallback draft is intentionally conservative and should be reviewed before external use.",
+    `For questions about the issues discussed in this update, please contact ${team}.`,
   ].join("\n");
 }
 
 function displayMarkdownTitle(title: string): string {
   return title.replace(/\s+/g, " ").trim();
+}
+
+function articleSectionSummary(item: StoredNews): string {
+  const text = stripHtml(item.contentHtml ?? "");
+  const sentences = text.split(/(?<=[.!?])\s+/).filter(Boolean);
+  let summary = "";
+  for (const sentence of sentences) {
+    const next = [summary, sentence].filter(Boolean).join(" ");
+    if (next.split(/\s+/).length > 100) break;
+    summary = next;
+    if (summary.split(/\s+/).length >= 80) break;
+  }
+  if (!summary || summary.split(/\s+/).length < 80) {
+    summary = [item.title, text].filter(Boolean).join(". ");
+  }
+  const limited = limitWords(summary, 80, 100);
+  return /[.!?)]$/.test(limited) ? limited : `${limited}.`;
 }
 
 function normalizeArticleContact(person: FirmPerson): FirmPerson {
