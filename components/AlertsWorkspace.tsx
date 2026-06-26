@@ -238,7 +238,7 @@ export function AlertsWorkspace({ initialNews, people, syncError, config = defau
 
           <div
             className={`grid gap-5 pb-8 pt-1 sm:pt-5 ${
-              sidebarCollapsed ? "lg:grid-cols-[1.75rem_minmax(0,1fr)_27rem]" : "lg:grid-cols-[11.5rem_minmax(0,1fr)_27rem]"
+              sidebarCollapsed ? "lg:grid-cols-[1.75rem_minmax(0,1fr)_28rem]" : "lg:grid-cols-[11.5rem_minmax(0,1fr)_28rem]"
             }`}
           >
             {!sidebarCollapsed ? (
@@ -467,11 +467,11 @@ function ArticleQueue({
   return (
     <div className="rounded-md border border-[color:var(--border)] bg-[color:var(--background)] p-3 shadow-sm">
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm font-medium text-[color:var(--muted-foreground)]">
+        <div className="flex items-center gap-2 text-base font-medium text-[color:var(--muted-foreground)]">
           <FileText className="size-4" />
           Article list
         </div>
-        <span className="rounded-md border border-[color:var(--border)] px-2 py-1 text-xs text-[color:var(--muted-foreground)]">
+        <span className="rounded-md border border-[color:var(--border)] px-2 py-1 text-sm text-[color:var(--muted-foreground)]">
           {queuedNews.length}/5
         </span>
       </div>
@@ -482,18 +482,18 @@ function ArticleQueue({
             <div key={item.newsRefNo} className="rounded-md border border-[color:var(--border)] bg-white/40 p-2.5">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <h3 className="mt-1 text-sm font-semibold leading-snug tracking-tight text-[color:var(--foreground)]">{displayTitle(item.title)}</h3>
+                  <h3 className="mt-1 text-base font-semibold leading-snug tracking-tight text-[color:var(--foreground)]">{displayTitle(item.title)}</h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => toggleQueuedNews(item.newsRefNo)}
-                  className="rounded-md px-2 py-1 text-xs font-medium text-[color:var(--muted-foreground)] hover:bg-[color:var(--accent)] hover:text-[color:var(--foreground)]"
+                  className="rounded-md px-2 py-1 text-sm font-medium text-[color:var(--muted-foreground)] hover:bg-[color:var(--accent)] hover:text-[color:var(--foreground)]"
                 >
                   Remove
                 </button>
               </div>
               <div className="mt-3 space-y-2">
-                <p className="text-xs font-medium text-[color:var(--muted-foreground)]">Prompt direction</p>
+                <p className="text-sm font-medium text-[color:var(--muted-foreground)]">Prompt direction</p>
                 <div className="flex flex-wrap gap-2">
                   {promptSuggestions(item).map((prompt, promptIndex) => {
                     const value = promptDrafts[item.newsRefNo]?.[promptIndex] ?? prompt;
@@ -501,7 +501,7 @@ function ArticleQueue({
                     return (
                       <label
                         key={promptIndex}
-                        className={`flex w-full items-center gap-2 rounded-md border px-2 py-1.5 text-xs leading-5 transition ${
+                        className={`flex w-full items-center gap-2 rounded-md border px-2 py-2 text-sm leading-6 transition ${
                           active ? "border-[color:var(--primary)] bg-[color:var(--accent)]" : "border-[color:var(--border)] bg-[color:var(--background)]"
                         }`}
                       >
@@ -509,20 +509,20 @@ function ArticleQueue({
                           type="checkbox"
                           checked={active}
                           onChange={() => togglePrompt(item.newsRefNo, promptIndex)}
-                          className="mt-1 size-3 accent-[color:var(--primary)]"
+                          className="mt-1 size-4 accent-[color:var(--primary)]"
                         />
                         <input
                           type="text"
                           value={value}
                           onChange={(event) => updatePromptDraft(item.newsRefNo, promptIndex, event.target.value)}
-                          className="h-6 min-w-0 flex-1 bg-transparent text-[color:var(--foreground)] outline-none"
+                          className="h-7 min-w-0 flex-1 bg-transparent text-[color:var(--foreground)] outline-none"
                           aria-label={`Prompt direction ${promptIndex + 1} for ${item.newsRefNo}`}
                         />
                       </label>
                     );
                   })}
                   <label
-                    className={`flex w-full items-center gap-2 rounded-md border px-2 py-1.5 text-xs leading-5 transition ${
+                    className={`flex w-full items-center gap-2 rounded-md border px-2 py-2 text-sm leading-6 transition ${
                       selectedPromptIndexes[item.newsRefNo]?.includes(promptSuggestions(item).length)
                         ? "border-[color:var(--primary)] bg-[color:var(--accent)]"
                         : "border-[color:var(--border)] bg-[color:var(--background)]"
@@ -532,14 +532,14 @@ function ArticleQueue({
                       type="checkbox"
                       checked={selectedPromptIndexes[item.newsRefNo]?.includes(promptSuggestions(item).length) ?? false}
                       onChange={() => togglePrompt(item.newsRefNo, promptSuggestions(item).length)}
-                      className="mt-1 size-3 accent-[color:var(--primary)]"
+                      className="mt-1 size-4 accent-[color:var(--primary)]"
                     />
                     <input
                       type="text"
                       value={customPromptDrafts[item.newsRefNo] ?? ""}
                       onChange={(event) => updateCustomPrompt(item.newsRefNo, event.target.value)}
                       placeholder="Add a short angle, audience, or drafting emphasis."
-                      className="h-6 min-w-0 flex-1 bg-transparent text-[color:var(--foreground)] outline-none placeholder:text-[color:var(--muted-foreground)]/70"
+                      className="h-7 min-w-0 flex-1 bg-transparent text-[color:var(--foreground)] outline-none placeholder:text-[color:var(--muted-foreground)]/70"
                       aria-label={`Custom prompt direction for ${item.newsRefNo}`}
                     />
                   </label>
@@ -548,14 +548,14 @@ function ArticleQueue({
             </div>
           ))
         ) : (
-          <div className="rounded-md border border-dashed border-[color:var(--border)] p-4 text-sm leading-6 text-[color:var(--muted-foreground)]">
+          <div className="rounded-md border border-dashed border-[color:var(--border)] p-4 text-base leading-7 text-[color:var(--muted-foreground)]">
             Click “Generate article” on any news item to add it here. Select up to 5 items to generate articles in one batch.
           </div>
         )}
       </div>
 
       <div className="mt-5 grid gap-3">
-        <p className="block text-sm font-medium text-[color:var(--foreground)]" id={`${idPrefix}-people-label`}>
+        <p className="block text-base font-medium text-[color:var(--foreground)]" id={`${idPrefix}-people-label`}>
           Contact person
         </p>
         <div
@@ -568,17 +568,17 @@ function ArticleQueue({
         {selectedPeople.length ? (
           <div className="flex flex-wrap gap-1.5">
             {selectedPeople.map((person) => (
-              <span key={person.id} className="rounded-md border border-[color:var(--border)] bg-white/40 px-2 py-1 text-xs text-[color:var(--muted-foreground)]">
+              <span key={person.id} className="rounded-md border border-[color:var(--border)] bg-white/40 px-2 py-1 text-sm text-[color:var(--muted-foreground)]">
                 {person.name}
                 {person.title ? ` · ${person.title}` : ""}
               </span>
             ))}
           </div>
         ) : (
-          <p className="text-xs leading-5 text-[color:var(--muted-foreground)]">No Firm contact selected.</p>
+          <p className="text-sm leading-6 text-[color:var(--muted-foreground)]">No Firm contact selected.</p>
         )}
 
-        <label className="block text-sm font-medium text-[color:var(--foreground)]" htmlFor={`${idPrefix}-requirements`}>
+        <label className="block text-base font-medium text-[color:var(--foreground)]" htmlFor={`${idPrefix}-requirements`}>
           Additional requirements
         </label>
         <textarea
@@ -587,14 +587,14 @@ function ArticleQueue({
           onChange={(event) => setRequirements(event.target.value)}
           placeholder="Add tone, angle, audience, anonymisation, or partner-specific requirements."
           rows={7}
-          className="min-h-36 resize-y rounded-md border border-[color:var(--border)] bg-[color:var(--background)] px-3 py-2 text-sm leading-6 outline-none focus:border-[color:var(--primary)]"
+          className="min-h-36 resize-y rounded-md border border-[color:var(--border)] bg-[color:var(--background)] px-3 py-2 text-base leading-7 outline-none focus:border-[color:var(--primary)]"
         />
 
         <button
           type="button"
           onClick={generateBatch}
           disabled={isGenerating || queuedNews.length === 0}
-          className="inline-flex h-10 items-center justify-center gap-1.5 rounded-md bg-[color:var(--primary)] px-3 text-sm font-semibold text-white shadow-sm disabled:opacity-60"
+          className="inline-flex h-11 items-center justify-center gap-1.5 rounded-md bg-[color:var(--primary)] px-3 text-base font-semibold text-white shadow-sm disabled:opacity-60"
         >
           {isGenerating ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles className="size-3.5" />}
           Generate article
@@ -899,29 +899,29 @@ function PeopleChoices({
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         placeholder="Search Firm contacts"
-        className="h-9 w-full rounded-md border border-[color:var(--border)] bg-[color:var(--background)] px-3 text-sm outline-none focus:border-[color:var(--primary)]"
+        className="h-10 w-full rounded-md border border-[color:var(--border)] bg-[color:var(--background)] px-3 text-base outline-none focus:border-[color:var(--primary)]"
       />
       {titles.length ? titles.map((title) => (
         <div key={title}>
-          <p className="mb-1 px-1 text-[11px] font-semibold uppercase tracking-wide text-[color:var(--muted-foreground)]">{title}</p>
+          <p className="mb-1 px-1 text-xs font-semibold uppercase tracking-wide text-[color:var(--muted-foreground)]">{title}</p>
           <div className="space-y-1">
             {grouped[title].map((person) => (
-              <label key={person.id} className="flex cursor-pointer items-start gap-2 rounded-md px-1.5 py-1 hover:bg-[color:var(--accent)]">
+              <label key={person.id} className="flex cursor-pointer items-start gap-2 rounded-md px-1.5 py-1.5 hover:bg-[color:var(--accent)]">
                 <input
                   type="checkbox"
                   checked={selectedPersonIds.includes(person.id)}
                   onChange={() => togglePerson(person.id)}
-                  className="mt-1 size-3 accent-[color:var(--primary)]"
+                  className="mt-1 size-4 accent-[color:var(--primary)]"
                 />
                 <span className="min-w-0">
-                  <span className="block text-sm leading-5 text-[color:var(--foreground)]">{person.name}</span>
-                  <span className="block text-xs leading-4 text-[color:var(--muted-foreground)]">{person.title}</span>
+                  <span className="block text-base leading-6 text-[color:var(--foreground)]">{person.name}</span>
+                  <span className="block text-sm leading-5 text-[color:var(--muted-foreground)]">{person.title}</span>
                 </span>
               </label>
             ))}
           </div>
         </div>
-      )) : <p className="px-1 py-2 text-xs text-[color:var(--muted-foreground)]">No matching contacts.</p>}
+      )) : <p className="px-1 py-2 text-sm text-[color:var(--muted-foreground)]">No matching contacts.</p>}
     </div>
   );
 }
