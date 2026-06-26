@@ -64,6 +64,13 @@ export function getDb(): DatabaseSyncType {
   return db;
 }
 
+export function closeDb(): void {
+  if (!db) return;
+  db.exec("PRAGMA wal_checkpoint(TRUNCATE);");
+  db.close();
+  db = null;
+}
+
 function resolveDatabasePath(): string {
   if (process.env.DATABASE_PATH) {
     return resolve(/* turbopackIgnore: true */ process.env.DATABASE_PATH);

@@ -35,6 +35,18 @@ type AlertsWorkspaceConfig = {
   newsNavLimit?: number;
 };
 
+type RefreshPipeline =
+  | { status: "queued"; workflow: string; repository: string; ref: string }
+  | { status: "skipped"; reason: string }
+  | { status: "failed"; reason: string };
+
+type RefreshPayload = {
+  news?: StoredNews[];
+  refreshed?: boolean;
+  pipeline?: RefreshPipeline;
+  error?: string;
+};
+
 const defaultConfig: AlertsWorkspaceConfig = {
   title: "SFC Enforcement Daily",
   subtitle: "Daily digest of SFC enforcement news for the knowledge team",
@@ -57,6 +69,7 @@ export function AlertsWorkspace({ initialNews, people, syncError, config = defau
   const [requirements, setRequirements] = useState("");
   const [drafts, setDrafts] = useState<ArticleDraft[]>([]);
   const [error, setError] = useState(syncError);
+  const [refreshStatus, setRefreshStatus] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [openOutlineGroups, setOpenOutlineGroups] = useState<Record<string, boolean>>({});
   const [isPending, startTransition] = useTransition();
@@ -74,13 +87,17 @@ export function AlertsWorkspace({ initialNews, people, syncError, config = defau
 
   function refresh() {
     setError(null);
+    setRefreshStatus(null);
     startTransition(async () => {
       try {
         const response = await fetch(config.refreshEndpoint, { method: "POST" });
-        const payload = await response.json();
+        const payload = (await response.json()) as RefreshPayload;
         if (!response.ok) throw new Error(payload.error ?? "Sync failed.");
-        setNews(payload.news);
-        if (payload.news[0]) setSelectedRef(payload.news[0].newsRefNo);
+        if (payload.news) {
+          setNews(payload.news);
+          if (payload.news[0]) setSelectedRef(payload.news[0].newsRefNo);
+        }
+        setRefreshStatus(refreshStatusText(payload));
       } catch (refreshError) {
         setError(refreshError instanceof Error ? refreshError.message : "Sync failed.");
       }
@@ -188,8 +205,8 @@ export function AlertsWorkspace({ initialNews, people, syncError, config = defau
             </nav>
           </div>
           <nav className="hidden items-center gap-1 text-sm text-[color:var(--muted-foreground)] sm:flex">
-            <a className="rounded-md px-3 py-2 hover:bg-[color:var(--accent)] hover:text-[color:var(--foreground)]" href="https://www.terracotta.dev/people/" target="_blank" rel="noreferrer">
-              Team
+            <a className="rounded-md px-3 py-2 hover:bg-[color:var(--accent)] hover:text-[color:var(--foreground)]" href="https://terracotta.dev" target="_blank" rel="noreferrer">
+              Built by Terracotta
             </a>
             <a
               className="rounded-md px-3 py-2 hover:bg-[color:var(--accent)] hover:text-[color:var(--foreground)]"
@@ -225,6 +242,12 @@ export function AlertsWorkspace({ initialNews, people, syncError, config = defau
                   <span className="text-sm text-[color:var(--muted-foreground)]">{news.length} items</span>
                   <span className="text-[color:var(--muted-foreground)]/40">|</span>
                   <span className="text-sm text-[color:var(--muted-foreground)]/70">Updated from {config.sourceName}</span>
+                  {refreshStatus ? (
+                    <>
+                      <span className="text-[color:var(--muted-foreground)]/40">|</span>
+                      <span className="text-sm text-[color:var(--muted-foreground)]/70">{refreshStatus}</span>
+                    </>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -423,6 +446,17 @@ export function AlertsWorkspace({ initialNews, people, syncError, config = defau
       </div>
     </main>
   );
+}
+
+function refreshStatusText(payload: RefreshPayload): string {
+  if (payload.pipeline?.status === "queued") {
+    return payload.refreshed ? "Live refresh complete; durable update queued" : "Durable update queued";
+  }
+  if (payload.pipeline?.status === "failed") {
+    return payload.refreshed ? "Live refresh complete; durable update failed" : "Durable update failed";
+  }
+  if (payload.refreshed) return "Live refresh complete";
+  return "No live refresh configured";
 }
 
 type ArticleQueueProps = {

@@ -1,6 +1,6 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { AlertsWorkspace } from "@/components/AlertsWorkspace";
 import type { FirmPerson, StoredNews } from "@/lib/types";
 
@@ -49,10 +49,15 @@ const people: FirmPerson[] = [
 ];
 
 describe("AlertsWorkspace", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("renders the digest list and generator controls", () => {
     const { container } = render(React.createElement(AlertsWorkspace, { initialNews: news, people, syncError: null }));
 
     expect(screen.getByRole("heading", { name: /SFC Enforcement Daily/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Built by Terracotta" })).toHaveAttribute("href", "https://terracotta.dev");
     expect(screen.getAllByText("seeks share buy-out order").length).toBeGreaterThan(0);
     expect(screen.getAllByRole("link", { name: /seeks share buy-out order/i }).some((link) => link.getAttribute("href") === "https://apps.sfc.hk/doc?refNo=26PR90")).toBe(true);
     expect(container.querySelector('a[href="#news-26PR90"]')).toBeNull();
@@ -92,5 +97,30 @@ describe("AlertsWorkspace", () => {
     fireEvent.click(screen.getByRole("button", { name: /Show news navigation/i }));
 
     expect(container.querySelector('a[href="#news-26PR90"]')).toHaveTextContent("seeks share buy-out order");
+  });
+
+  it("shows live and durable refresh status", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          news,
+          refreshed: true,
+          pipeline: {
+            status: "queued",
+            workflow: "sync-data.yml",
+            repository: "rocky-terracotta/knowledge-management-general",
+            ref: "main",
+          },
+        }),
+        { status: 200 },
+      ),
+    );
+
+    render(React.createElement(AlertsWorkspace, { initialNews: news, people, syncError: null }));
+    fireEvent.click(screen.getByRole("button", { name: /Refresh/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Live refresh complete; durable update queued")).toBeInTheDocument();
+    });
   });
 });
