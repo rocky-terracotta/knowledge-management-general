@@ -9,10 +9,12 @@ const { DatabaseSync } = (
 ).getBuiltinModule("node:sqlite");
 
 let db: DatabaseSyncType | null = null;
+let activeDbPath: string | null = null;
 
 export function getDb(): DatabaseSyncType {
   if (db) return db;
   const dbPath = resolveDatabasePath();
+  activeDbPath = dbPath;
   mkdirSync(dirname(dbPath), { recursive: true });
   db = new DatabaseSync(dbPath);
   db.exec(`
@@ -66,9 +68,21 @@ export function getDb(): DatabaseSyncType {
 
 export function closeDb(): void {
   if (!db) return;
-  db.exec("PRAGMA wal_checkpoint(TRUNCATE);");
+  checkpointDb();
   db.close();
   db = null;
+}
+
+export function checkpointDb(): void {
+  db?.exec("PRAGMA wal_checkpoint(TRUNCATE);");
+}
+
+export function getDatabasePath(): string {
+  getDb();
+  if (!activeDbPath) {
+    throw new Error("Database path is unavailable.");
+  }
+  return activeDbPath;
 }
 
 function resolveDatabasePath(): string {

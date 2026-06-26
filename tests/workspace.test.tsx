@@ -105,11 +105,11 @@ describe("AlertsWorkspace", () => {
         JSON.stringify({
           news,
           refreshed: true,
-          pipeline: {
-            status: "queued",
-            workflow: "sync-data.yml",
+          durable: {
+            status: "committed",
             repository: "rocky-terracotta/knowledge-management-general",
-            ref: "main",
+            branch: "main",
+            commitSha: "abc123",
           },
         }),
         { status: 200 },
@@ -120,7 +120,7 @@ describe("AlertsWorkspace", () => {
     fireEvent.click(screen.getByRole("button", { name: /Refresh/i }));
 
     await waitFor(() => {
-      expect(screen.getByText("Live refresh complete; durable update queued")).toBeInTheDocument();
+      expect(screen.getByText("Live refresh complete; durable update committed")).toBeInTheDocument();
     });
   });
 });

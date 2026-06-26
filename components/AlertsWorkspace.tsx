@@ -35,15 +35,15 @@ type AlertsWorkspaceConfig = {
   newsNavLimit?: number;
 };
 
-type RefreshPipeline =
-  | { status: "queued"; workflow: string; repository: string; ref: string }
+type DurableUpdate =
+  | { status: "committed"; repository: string; branch: string; commitSha: string }
   | { status: "skipped"; reason: string }
   | { status: "failed"; reason: string };
 
 type RefreshPayload = {
   news?: StoredNews[];
   refreshed?: boolean;
-  pipeline?: RefreshPipeline;
+  durable?: DurableUpdate;
   error?: string;
 };
 
@@ -449,10 +449,10 @@ export function AlertsWorkspace({ initialNews, people, syncError, config = defau
 }
 
 function refreshStatusText(payload: RefreshPayload): string {
-  if (payload.pipeline?.status === "queued") {
-    return payload.refreshed ? "Live refresh complete; durable update queued" : "Durable update queued";
+  if (payload.durable?.status === "committed") {
+    return payload.refreshed ? "Live refresh complete; durable update committed" : "Durable update committed";
   }
-  if (payload.pipeline?.status === "failed") {
+  if (payload.durable?.status === "failed") {
     return payload.refreshed ? "Live refresh complete; durable update failed" : "Durable update failed";
   }
   if (payload.refreshed) return "Live refresh complete";

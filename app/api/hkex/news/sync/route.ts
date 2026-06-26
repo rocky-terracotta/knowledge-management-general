@@ -1,5 +1,5 @@
 import { listStoredNews } from "@/lib/db";
-import { triggerDataSyncWorkflow } from "@/lib/github-actions";
+import { commitRuntimeDatabase } from "@/lib/github-commit";
 import { syncLatestHkexNews, syncPeople } from "@/lib/sync";
 
 export const runtime = "nodejs";
@@ -8,8 +8,7 @@ export async function POST() {
   await syncPeople();
   let refreshed = false;
   if (process.env.ENABLE_LIVE_NEWS_SYNC !== "true") {
-    const pipeline = await triggerDataSyncWorkflow("hkex");
-    return Response.json({ news: listStoredNews(20, "hkex"), refreshed, pipeline });
+    return Response.json({ news: listStoredNews(20, "hkex"), refreshed, durable: { status: "skipped", reason: "ENABLE_LIVE_NEWS_SYNC is not true." } });
   }
 
   try {
@@ -18,6 +17,6 @@ export async function POST() {
   } catch (error) {
     console.error("HKEx sync failed; returning stored news.", error);
   }
-  const pipeline = await triggerDataSyncWorkflow("hkex");
-  return Response.json({ news: listStoredNews(20, "hkex"), refreshed, pipeline });
+  const durable = refreshed ? await commitRuntimeDatabase() : { status: "skipped", reason: "Live refresh did not complete." };
+  return Response.json({ news: listStoredNews(20, "hkex"), refreshed, durable });
 }
