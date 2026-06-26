@@ -1,0 +1,14 @@
+.env
+.env*.local
+.next
+node_modules
+coverage
+test-results
+tsconfig.tsbuildinfo
+npm-debug.log*
+.DS_Store
+data/*.sqlite-journal
+data/*.sqlite-wal
+data/*.sqlite-shm
+data/*.sqlite-*
+data/*.sqlite.zip

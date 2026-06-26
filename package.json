@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "General legal knowledge management and regulatory alert workspace",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
     "test": "vitest run",
